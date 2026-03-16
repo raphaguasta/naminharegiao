@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-navy:       #1a2744;
+  --color-navy-light: #243357;
+  --color-teal:       #2a8c8c;
+  --color-teal-light: #3aabab;
+  --color-coral:      #e8603a;
+  --color-coral-light:#f07550;
+  --color-card:       #1e2e50;
+  --color-muted:      #8a9bc4;
+  --color-border:     rgba(255,255,255,0.07);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: #1a2744;
+  color: #f5f7fa;
+  -webkit-font-smoothing: antialiased;
+}
