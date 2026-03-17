@@ -3,9 +3,12 @@ import type { Bairro, Categoria, Guia, Plano, Negocio, NegocioCompleto, DataRepo
 // ─── MOCK DATA ────────────────────────────────────────────────────────────────
 
 const bairros: Bairro[] = [
-  { id: 'b1', nome: 'Vila Leopoldina', slug: 'vila-leopoldina', cidade: 'São Paulo', descricao: 'Bairro residencial e gastronômico na zona oeste de SP, famoso por restaurantes e bares.', lat: -23.5306, lng: -46.7589, ativo: true },
-  { id: 'b2', nome: 'Pinheiros', slug: 'pinheiros', cidade: 'São Paulo', descricao: 'Um dos bairros mais agitados de SP, com vida cultural intensa, bares e restaurantes.', lat: -23.5629, lng: -46.6862, ativo: true },
-  { id: 'b3', nome: 'Mooca', slug: 'mooca', cidade: 'São Paulo', descricao: 'Bairro tradicional de origem italiana com culinária típica e comércio local forte.', lat: -23.5571, lng: -46.6025, ativo: true },
+  { id: 'b1', nome: 'Vila Leopoldina', slug: 'vila-leopoldina', cidade: 'São Paulo', cidade_slug: 'sao-paulo', uf: 'sp', descricao: 'Bairro residencial e gastronômico na zona oeste de SP, famoso por restaurantes e bares.', lat: -23.5306, lng: -46.7589, ativo: true },
+  { id: 'b2', nome: 'Pinheiros', slug: 'pinheiros', cidade: 'São Paulo', cidade_slug: 'sao-paulo', uf: 'sp', descricao: 'Um dos bairros mais agitados de SP, com vida cultural intensa, bares e restaurantes.', lat: -23.5629, lng: -46.6862, ativo: true },
+  { id: 'b3', nome: 'Mooca', slug: 'mooca', cidade: 'São Paulo', cidade_slug: 'sao-paulo', uf: 'sp', descricao: 'Bairro tradicional de origem italiana com culinária típica e comércio local forte.', lat: -23.5571, lng: -46.6025, ativo: true },
+  { id: 'b4', nome: 'Vila Madalena', slug: 'vila-madalena', cidade: 'São Paulo', cidade_slug: 'sao-paulo', uf: 'sp', descricao: 'Bairro boêmio e artístico com bares, galerias, murais e a famosa Rua Aspicuelta.', lat: -23.5553, lng: -46.6917, ativo: true },
+  { id: 'b5', nome: 'Itaim Bibi', slug: 'itaim-bibi', cidade: 'São Paulo', cidade_slug: 'sao-paulo', uf: 'sp', descricao: 'Hub corporativo e gastronômico com restaurantes premiados e bares modernos.', lat: -23.5858, lng: -46.6745, ativo: true },
+  { id: 'b6', nome: 'Perdizes', slug: 'perdizes', cidade: 'São Paulo', cidade_slug: 'sao-paulo', uf: 'sp', descricao: 'Bairro familiar e cultural na zona oeste, com feiras, cafés e comércio local tradicional.', lat: -23.5375, lng: -46.6659, ativo: true },
 ]
 
 const categorias: Categoria[] = [
@@ -17,9 +20,12 @@ const categorias: Categoria[] = [
 ]
 
 const guias: Guia[] = [
-  { id: 'g1', nome: 'Guia Vila Leopoldina', bairro_id: 'b1', instagram: 'guiavilaleopoldina', whatsapp: '5511944405488', ativo: true },
-  { id: 'g2', nome: 'Guia Pinheiros', bairro_id: 'b2', instagram: 'guiapinheiros', whatsapp: '5511944405488', ativo: true },
-  { id: 'g3', nome: 'Guia Mooca', bairro_id: 'b3', instagram: 'guiamooca', whatsapp: '5511944405488', ativo: true },
+  { id: 'g1', nome: 'Guia Vila Leopoldina', slug: 'guia-vila-leopoldina', bairro_id: 'b1', instagram: 'guiavilaleopoldina', whatsapp: '5511944405488', ativo: true },
+  { id: 'g2', nome: 'Guia Pinheiros', slug: 'guia-pinheiros', bairro_id: 'b2', instagram: 'guiapinheiros', whatsapp: '5511944405488', ativo: true },
+  { id: 'g3', nome: 'Guia Mooca', slug: 'guia-mooca', bairro_id: 'b3', instagram: 'guiamooca', whatsapp: '5511944405488', ativo: true },
+  { id: 'g4', nome: 'Guia Vila Madalena', slug: 'guia-vila-madalena', bairro_id: 'b4', instagram: 'guiavilamadalena', whatsapp: '5511944405488', ativo: true },
+  { id: 'g5', nome: 'Guia Itaim Bibi', slug: 'guia-itaim-bibi', bairro_id: 'b5', instagram: 'guiaitaim', whatsapp: '5511944405488', ativo: true },
+  { id: 'g6', nome: 'Guia Perdizes', slug: 'guia-perdizes', bairro_id: 'b6', instagram: 'guiaperdizes', whatsapp: '5511944405488', ativo: true },
 ]
 
 const planos: Plano[] = [
@@ -63,6 +69,17 @@ const negocios: Negocio[] = [
   { id: 'n18', nome: 'Açaí & Cia', slug: 'acai-e-cia', descricao: 'Bowl de açaí com frutas frescas, granola e complementos. Também tem sucos naturais e vitaminas.', bairro_id: 'b1', categoria_id: 'c2', guia_id: 'g1', endereco: 'Av. Imperatriz Leopoldina, 520 — Vila Leopoldina, SP', whatsapp: '5511966554410', instagram: 'acaie_cia', tiktok: 'acaie_cia', preco_medio: '$', horarios: { seg: '10h–21h', ter: '10h–21h', qua: '10h–21h', qui: '10h–21h', sex: '10h–22h', sab: '09h–22h', dom: '09h–20h' }, fotos: ['https://images.unsplash.com/photo-1590301157890-4810ed352733?w=800'], destaque: false, ativo: true, criado_em: '2025-03-12', plano_id: 'p1', valor_cobrado: 150, valor_repasse: 50, cobranca_status: 'trial', cobranca_inicio: '2025-03-12', cobranca_renovacao: '2025-04-12' },
   { id: 'n19', nome: 'Adega Vila', slug: 'adega-vila', descricao: 'Adega e empório de vinhos com curadoria especial de rótulos nacionais e importados. Harmonização e degustação.', bairro_id: 'b1', categoria_id: 'c5', guia_id: 'g1', endereco: 'Rua Guaicurus, 78 — Vila Leopoldina, SP', whatsapp: '5511955440011', instagram: 'adegavila', site: 'https://adegavila.com.br', preco_medio: '$$', horarios: { seg: 'Fechado', ter: '15h–21h', qua: '15h–21h', qui: '15h–22h', sex: '14h–22h', sab: '12h–22h', dom: '12h–18h' }, fotos: ['https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800'], destaque: false, ativo: true, criado_em: '2025-03-15', plano_id: 'p1', valor_cobrado: 150, valor_repasse: 50, cobranca_status: 'trial', cobranca_inicio: '2025-03-15', cobranca_renovacao: '2025-04-15' },
   { id: 'n20', nome: 'Padaria Bella Manhã', slug: 'padaria-bella-manha', descricao: 'Padaria artesanal com pães de fermentação natural, croissants e café da manhã completo.', bairro_id: 'b2', categoria_id: 'c2', guia_id: 'g2', endereco: 'Rua Teodoro Sampaio, 312 — Pinheiros, SP', whatsapp: '5511944440022', instagram: 'padariabellamanha', preco_medio: '$', horarios: { seg: '06h–20h', ter: '06h–20h', qua: '06h–20h', qui: '06h–20h', sex: '06h–20h', sab: '06h–18h', dom: '07h–14h' }, fotos: ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800'], destaque: true, ativo: true, criado_em: '2025-03-18', plano_id: 'p1', valor_cobrado: 150, valor_repasse: 50, cobranca_status: 'ativa', cobranca_inicio: '2025-03-18', cobranca_renovacao: '2025-04-18' },
+
+  // Vila Madalena
+  { id: 'n21', nome: 'Bar da Aspicuelta', slug: 'bar-da-aspicuelta', descricao: 'Bar icônico na rua mais famosa da Vila Madalena. Happy hour, drinks autorais e petiscos criativos.', bairro_id: 'b4', categoria_id: 'c3', guia_id: 'g4', endereco: 'Rua Aspicuelta, 54 — Vila Madalena, SP', whatsapp: '5511933445566', instagram: 'baraspicuelta', preco_medio: '$$', horarios: { seg: 'Fechado', ter: 'Fechado', qua: '18h–01h', qui: '18h–01h', sex: '17h–02h', sab: '14h–02h', dom: '14h–23h' }, fotos: ['https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=800'], destaque: true, ativo: true, criado_em: '2025-03-01', plano_id: 'p1', valor_cobrado: 150, valor_repasse: 50, cobranca_status: 'ativa', cobranca_inicio: '2025-03-01', cobranca_renovacao: '2025-04-01' },
+  { id: 'n22', nome: 'Empanadas Vila', slug: 'empanadas-vila', descricao: 'Empanadas artesanais argentinas com recheios variados e molhos da casa. Também tem churros.', bairro_id: 'b4', categoria_id: 'c1', guia_id: 'g4', endereco: 'Rua Wisard, 271 — Vila Madalena, SP', instagram: 'empanadasvila', whatsapp: '5511922334455', preco_medio: '$', horarios: { seg: 'Fechado', ter: '12h–21h', qua: '12h–21h', qui: '12h–21h', sex: '12h–22h', sab: '11h–22h', dom: '11h–20h' }, fotos: ['https://images.unsplash.com/photo-1574484284002-952d92456975?w=800'], destaque: true, ativo: true, criado_em: '2025-03-05', plano_id: 'p1', valor_cobrado: 150, valor_repasse: 50, cobranca_status: 'ativa', cobranca_inicio: '2025-03-05', cobranca_renovacao: '2025-04-05' },
+
+  // Itaim Bibi
+  { id: 'n23', nome: 'Sushi Sen', slug: 'sushi-sen', descricao: 'Omakasê moderno com ingredientes premium e carta de saquê. Referência em sushi no Itaim.', bairro_id: 'b5', categoria_id: 'c1', guia_id: 'g5', endereco: 'Rua João Cachoeira, 450 — Itaim Bibi, SP', telefone: '(11) 3078-4422', instagram: 'sushisen_sp', site: 'https://sushisen.com.br', preco_medio: '$$$', horarios: { seg: 'Fechado', ter: '19h–23h', qua: '19h–23h', qui: '19h–23h', sex: '19h–00h', sab: '12h–15h / 19h–00h', dom: '12h–16h' }, fotos: ['https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=800'], destaque: true, ativo: true, criado_em: '2025-02-20', plano_id: 'p1', valor_cobrado: 150, valor_repasse: 50, cobranca_status: 'ativa', cobranca_inicio: '2025-02-20', cobranca_renovacao: '2025-03-20' },
+  { id: 'n24', nome: 'Coffee Lab Itaim', slug: 'coffee-lab-itaim', descricao: 'Cafeteria especialidade no coração do Itaim. Espressos premiados, filtrado e workshop de barista.', bairro_id: 'b5', categoria_id: 'c2', guia_id: 'g5', endereco: 'Rua Leopoldo Couto de Magalhães Jr., 681 — Itaim Bibi, SP', instagram: 'coffeelab_itaim', whatsapp: '5511911223344', preco_medio: '$', horarios: { seg: '07h–19h', ter: '07h–19h', qua: '07h–19h', qui: '07h–19h', sex: '07h–20h', sab: '09h–18h', dom: '10h–16h' }, fotos: ['https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=800'], destaque: true, ativo: true, criado_em: '2025-03-08', plano_id: 'p1', valor_cobrado: 150, valor_repasse: 50, cobranca_status: 'ativa', cobranca_inicio: '2025-03-08', cobranca_renovacao: '2025-04-08' },
+
+  // Perdizes
+  { id: 'n25', nome: 'Feira da Pompeia', slug: 'feira-da-pompeia', descricao: 'Mercado e feira gourmet com produtores locais, queijos artesanais, pães e orgânicos. Aberto na manhã de sábado.', bairro_id: 'b6', categoria_id: 'c5', guia_id: 'g6', endereco: 'Rua Turiassu, 390 — Perdizes, SP', instagram: 'feiradapompeia', whatsapp: '5511900112233', preco_medio: '$', horarios: { seg: 'Fechado', ter: 'Fechado', qua: 'Fechado', qui: 'Fechado', sex: 'Fechado', sab: '07h–14h', dom: 'Fechado' }, fotos: ['https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=800'], destaque: true, ativo: true, criado_em: '2025-03-12', plano_id: 'p1', valor_cobrado: 150, valor_repasse: 50, cobranca_status: 'ativa', cobranca_inicio: '2025-03-12', cobranca_renovacao: '2025-04-12' },
 ]
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
@@ -114,6 +131,11 @@ const mockRepository: DataRepository = {
   async getGuias() {
     await delay()
     return guias.filter(g => g.ativo)
+  },
+
+  async getGuiaBySlug(slug) {
+    await delay()
+    return guias.find(g => g.slug === slug && g.ativo) ?? null
   },
 
   async getPlanos() {

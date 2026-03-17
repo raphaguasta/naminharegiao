@@ -1,31 +1,32 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import BairroCard from '@/components/BairroCard'
 import NegocioCard from '@/components/NegocioCard'
 import SearchBar from '@/components/SearchBar'
 import GeolocationModal from '@/components/GeolocationModal'
-import type { Bairro, NegocioCompleto } from '@/lib/types'
+import Carousel from '@/components/Carousel'
+import type { Bairro, Guia, NegocioCompleto } from '@/lib/types'
 
 interface Props {
   bairros: Bairro[]
   negociosDestaque: NegocioCompleto[]
+  guias: Guia[]
 }
 
-export default function HomeClient({ bairros, negociosDestaque }: Props) {
+export default function HomeClient({ bairros, negociosDestaque, guias }: Props) {
   const [showModal, setShowModal] = useState(false)
   const [bairroAtual, setBairroAtual] = useState<Bairro | null>(null)
   const [negociosLocais, setNegociosLocais] = useState<NegocioCompleto[]>([])
 
   useEffect(() => {
-    // Tenta recuperar bairro salvo
     const savedSlug = localStorage.getItem('nmr_bairro_slug')
     if (savedSlug) {
       const b = bairros.find(b => b.slug === savedSlug)
       if (b) { setBairroAtual(b); filterDestaques(b); return }
     }
 
-    // Solicita geolocalização
     if (!navigator.geolocation) { setShowModal(true); return }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -71,7 +72,7 @@ export default function HomeClient({ bairros, negociosDestaque }: Props) {
         </div>
       </section>
 
-      {/* Destaques por localização */}
+      {/* Destaques por localização — carousel */}
       {negociosLocais.length > 0 && bairroAtual && (
         <section className="px-[5vw] py-10 border-t border-[rgba(255,255,255,0.05)]">
           <div className="max-w-[1200px] mx-auto">
@@ -85,19 +86,22 @@ export default function HomeClient({ bairros, negociosDestaque }: Props) {
                   Destaques em {bairroAtual.nome}
                 </h2>
               </div>
-              <button onClick={() => { localStorage.removeItem('nmr_bairro_id'); localStorage.removeItem('nmr_bairro_slug'); setShowModal(true) }}
-                      className="text-[#8a9bc4] text-xs hover:text-white transition-colors flex items-center gap-1">
+              <button
+                onClick={() => { localStorage.removeItem('nmr_bairro_id'); localStorage.removeItem('nmr_bairro_slug'); setShowModal(true) }}
+                className="text-[#8a9bc4] text-xs hover:text-white transition-colors flex items-center gap-1"
+              >
                 📍 Mudar bairro
               </button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {negociosLocais.map(n => <NegocioCard key={n.id} negocio={n} />)}
-            </div>
+            <Carousel
+              items={negociosLocais}
+              renderItem={(n) => <NegocioCard negocio={n} />}
+            />
           </div>
         </section>
       )}
 
-      {/* Grid de bairros */}
+      {/* Bairros disponíveis — carousel */}
       <section className="px-[5vw] py-12">
         <div className="max-w-[1200px] mx-auto">
           <div className="flex items-center gap-1.5 text-[#3aabab] text-xs font-medium uppercase tracking-widest mb-2">
@@ -105,33 +109,57 @@ export default function HomeClient({ bairros, negociosDestaque }: Props) {
             Explorar
           </div>
           <h2 className="font-[family-name:var(--font-jakarta)] font-bold text-white text-2xl mb-6">Bairros disponíveis</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {bairros.map(b => <BairroCard key={b.id} bairro={b} />)}
-          </div>
+          <Carousel
+            items={bairros}
+            renderItem={(b) => <BairroCard bairro={b} />}
+          />
         </div>
       </section>
 
-      {/* CTA parceiros */}
-      <section className="px-[5vw] py-16 border-t border-[rgba(255,255,255,0.05)]">
-        <div className="max-w-[1200px] mx-auto">
-          <div className="bg-[#1e2e50] border border-[rgba(255,255,255,0.07)] rounded-2xl px-8 py-10 text-center relative overflow-hidden">
-            <div className="absolute inset-0 pointer-events-none"
-                 style={{ background: 'radial-gradient(ellipse 60% 80% at 50% 100%, rgba(232,96,58,0.08) 0%, transparent 70%)' }} />
-            <p className="text-[#3aabab] text-xs font-medium uppercase tracking-widest mb-3 relative">Para guias de bairro</p>
-            <h2 className="font-[family-name:var(--font-jakarta)] font-extrabold text-white text-2xl md:text-3xl mb-3 relative">
-              Seu bairro já tem comunidade.<br />Agora pode gerar receita.
-            </h2>
-            <p className="text-[#8a9bc4] mb-6 relative max-w-md mx-auto text-sm">
-              Transforme seus seguidores em receita recorrente. Sem custo de adesão.
-            </p>
-            <a href="/parceiros"
-               className="inline-block bg-[#e8603a] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#f07550] transition-colors relative text-sm">
-              Quero ser parceiro →
-            </a>
+      {/* Guias parceiros */}
+      {guias.length > 0 && (
+        <section className="px-[5vw] py-12 border-t border-[rgba(255,255,255,0.05)]">
+          <div className="max-w-[1200px] mx-auto">
+            <div className="flex items-center gap-1.5 text-[#3aabab] text-xs font-medium uppercase tracking-widest mb-2">
+              <span className="w-5 h-0.5 bg-[#3aabab] inline-block" />
+              Comunidade
+            </div>
+            <h2 className="font-[family-name:var(--font-jakarta)] font-bold text-white text-2xl mb-6">Guias parceiros</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {guias.map(g => <GuiaCard key={g.id} guia={g} bairros={bairros} />)}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
+  )
+}
+
+function GuiaCard({ guia, bairros }: { guia: Guia; bairros: Bairro[] }) {
+  const bairro = bairros.find(b => b.id === guia.bairro_id)
+  return (
+    <Link href={`/guias/${guia.slug}`}
+      className="block bg-[#1e2e50] border border-[rgba(255,255,255,0.07)] rounded-2xl p-6 hover:border-[rgba(42,140,140,0.4)] hover:-translate-y-1 transition-all duration-200 group">
+      <div className="flex items-start justify-between mb-4">
+        <div className="w-10 h-10 rounded-xl bg-[rgba(42,140,140,0.15)] flex items-center justify-center text-lg">
+          📍
+        </div>
+        {guia.instagram && (
+          <span className="text-xs text-[#8a9bc4] bg-[rgba(255,255,255,0.05)] px-2 py-1 rounded-full">
+            @{guia.instagram}
+          </span>
+        )}
+      </div>
+      <h3 className="font-[family-name:var(--font-jakarta)] font-bold text-white text-lg mb-1 group-hover:text-[#3aabab] transition-colors">
+        {guia.nome}
+      </h3>
+      {bairro && (
+        <p className="text-[#8a9bc4] text-sm">📍 {bairro.nome}</p>
+      )}
+      <div className="mt-4 text-[#3aabab] text-xs font-medium flex items-center gap-1">
+        Ver negócios indicados <span>→</span>
+      </div>
+    </Link>
   )
 }
 

@@ -8,10 +8,11 @@ export const metadata: Metadata = {
 }
 
 export default async function HomePage() {
-  const [bairros, negociosDestaque] = await Promise.all([
+  const [bairros, negociosDestaque, guias] = await Promise.all([
     db.getBairros(),
     db.getNegocios({ destaque: true, ativo: true }),
+    db.getGuias(),
   ])
 
-  return <HomeClient bairros={bairros} negociosDestaque={negociosDestaque} />
+  return <HomeClient bairros={bairros} negociosDestaque={negociosDestaque} guias={guias} />
 }
