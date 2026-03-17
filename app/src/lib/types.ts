@@ -3,6 +3,8 @@ export type Bairro = {
   nome: string
   slug: string
   cidade: string
+  cidade_slug: string
+  uf: string
   descricao?: string
   lat?: number
   lng?: number
@@ -21,6 +23,7 @@ export type Categoria = {
 export type Guia = {
   id: string
   nome: string
+  slug: string
   bairro_id: string
   instagram?: string
   whatsapp?: string
@@ -79,6 +82,7 @@ export interface DataRepository {
   getCategorias(): Promise<Categoria[]>
   getCategoriaBySlug(slug: string): Promise<Categoria | null>
   getGuias(): Promise<Guia[]>
+  getGuiaBySlug(slug: string): Promise<Guia | null>
   getPlanos(): Promise<Plano[]>
   getNegocios(filters?: { bairro_id?: string; categoria_id?: string; destaque?: boolean; ativo?: boolean }): Promise<NegocioCompleto[]>
   getNegocioBySlug(slug: string): Promise<NegocioCompleto | null>

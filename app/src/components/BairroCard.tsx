@@ -1,9 +1,10 @@
 import Link from 'next/link'
 import type { Bairro } from '@/lib/types'
+import { bairroUrl } from '@/lib/urls'
 
 export default function BairroCard({ bairro }: { bairro: Bairro }) {
   return (
-    <Link href={`/${bairro.slug}`}
+    <Link href={bairroUrl(bairro)}
       className="block bg-[#1e2e50] border border-[rgba(255,255,255,0.07)] rounded-2xl p-6 hover:border-[rgba(42,140,140,0.4)] hover:-translate-y-1 transition-all duration-200 group">
       <div className="flex items-start justify-between mb-3">
         <div className="w-10 h-10 rounded-xl bg-[rgba(42,140,140,0.15)] flex items-center justify-center text-lg">

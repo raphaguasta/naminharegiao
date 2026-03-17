@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import type { NegocioCompleto } from '@/lib/types'
+import { negocioUrl } from '@/lib/urls'
 
 const PRECO_LABEL = { '$': 'Econômico', '$$': 'Moderado', '$$$': 'Premium' }
 
@@ -10,7 +11,7 @@ export default function NegocioCard({ negocio }: { negocio: NegocioCompleto }) {
   const foto = negocio.fotos[0]
 
   return (
-    <Link href={`/${negocio.slug}`}
+    <Link href={negocioUrl(negocio)}
       className="block bg-[#1e2e50] border border-[rgba(255,255,255,0.07)] rounded-2xl overflow-hidden hover:border-[rgba(42,140,140,0.4)] hover:-translate-y-1 transition-all duration-200 group">
       {foto && (
         <div className="relative h-44 w-full overflow-hidden">

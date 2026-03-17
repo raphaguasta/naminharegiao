@@ -4,101 +4,112 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { db } from '@/lib/data'
 import NegocioCard from '@/components/NegocioCard'
+import { bairroUrl, negocioUrl, categoriaUrl } from '@/lib/urls'
 
-interface Props { params: Promise<{ slug: string }> }
+interface Props { params: Promise<{ uf: string; cidade: string; bairro: string; slug: string }> }
 
 export async function generateStaticParams() {
-  const [bairros, negocios] = await Promise.all([db.getBairros(), db.getNegocios({ ativo: true })])
-  return [
-    ...bairros.map(b => ({ slug: b.slug })),
-    ...negocios.map(n => ({ slug: n.slug })),
-  ]
+  const [bairros, categorias, negocios] = await Promise.all([
+    db.getBairros(),
+    db.getCategorias(),
+    db.getNegocios({ ativo: true }),
+  ])
+
+  const params: { uf: string; cidade: string; bairro: string; slug: string }[] = []
+
+  // Negócios
+  for (const n of negocios) {
+    const b = bairros.find(b => b.id === n.bairro_id)
+    if (b) params.push({ uf: b.uf, cidade: b.cidade_slug, bairro: b.slug, slug: n.slug })
+  }
+
+  // Categorias (only pairs that have active negocios)
+  for (const b of bairros) {
+    for (const c of categorias) {
+      if (negocios.some(n => n.bairro_id === b.id && n.categoria_id === c.id)) {
+        params.push({ uf: b.uf, cidade: b.cidade_slug, bairro: b.slug, slug: c.slug })
+      }
+    }
+  }
+
+  return params
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
-  const [bairro, negocio] = await Promise.all([db.getBairroBySlug(slug), db.getNegocioBySlug(slug)])
-  if (bairro) return { title: `${bairro.nome}`, description: bairro.descricao ?? `Descubra os melhores negócios em ${bairro.nome}.` }
-  if (negocio) return { title: negocio.nome, description: negocio.descricao ?? `${negocio.nome} — ${negocio.bairro?.nome}` }
+  const { bairro: bairroSlug, slug } = await params
+  const [bairro, categoria, negocio] = await Promise.all([
+    db.getBairroBySlug(bairroSlug),
+    db.getCategoriaBySlug(slug),
+    db.getNegocioBySlug(slug),
+  ])
+  if (!bairro) return {}
+  if (categoria) return {
+    title: `${categoria.nome} em ${bairro.nome}`,
+    description: `Os melhores ${categoria.nome.toLowerCase()} em ${bairro.nome}, ${bairro.cidade}. Recomendados pelo guia local.`,
+  }
+  if (negocio) return {
+    title: negocio.nome,
+    description: negocio.descricao ?? `${negocio.nome} — ${bairro.nome}`,
+  }
   return {}
 }
 
 export default async function SlugPage({ params }: Props) {
-  const { slug } = await params
-  const [bairro, negocio] = await Promise.all([db.getBairroBySlug(slug), db.getNegocioBySlug(slug)])
-
-  if (bairro) return <BairroPage bairroSlug={slug} />
-  if (negocio) return <NegocioPage slug={slug} />
-  notFound()
-}
-
-// ─── BAIRRO PAGE ─────────────────────────────────────────────────────────────
-
-async function BairroPage({ bairroSlug }: { bairroSlug: string }) {
-  const [bairro, categorias, todosNegocios] = await Promise.all([
+  const { bairro: bairroSlug, slug } = await params
+  const [bairro, categoria, negocio] = await Promise.all([
     db.getBairroBySlug(bairroSlug),
-    db.getCategorias(),
-    db.getNegocios({ ativo: true }),
+    db.getCategoriaBySlug(slug),
+    db.getNegocioBySlug(slug),
   ])
   if (!bairro) return notFound()
+  if (categoria) return <CategoriaPage bairroSlug={bairroSlug} categoriaSlug={slug} />
+  if (negocio) return <NegocioPage slug={slug} />
+  return notFound()
+}
 
-  const negocios = todosNegocios.filter(n => n.bairro_id === bairro.id)
-  const categoriasComNegocios = categorias.filter(c => negocios.some(n => n.categoria_id === c.id))
-  const destaques = negocios.filter(n => n.destaque)
+// ─── CATEGORIA PAGE ───────────────────────────────────────────────────────────
+
+async function CategoriaPage({ bairroSlug, categoriaSlug }: { bairroSlug: string; categoriaSlug: string }) {
+  const [bairro, categoria, negocios] = await Promise.all([
+    db.getBairroBySlug(bairroSlug),
+    db.getCategoriaBySlug(categoriaSlug),
+    db.getNegociosByBairroCategoria(bairroSlug, categoriaSlug),
+  ])
+  if (!bairro || !categoria) return notFound()
 
   return (
     <div className="px-[5vw] py-10 max-w-[1200px] mx-auto">
-      {/* Header */}
-      <div className="mb-10">
-        <Link href="/" className="text-[#8a9bc4] text-sm hover:text-white transition-colors flex items-center gap-1 mb-4">
-          ← Todos os bairros
-        </Link>
-        <h1 className="font-[family-name:var(--font-jakarta)] font-extrabold text-white text-3xl md:text-4xl mb-2">{bairro.nome}</h1>
-        <p className="text-[#8a9bc4] max-w-xl">{bairro.descricao}</p>
-        <div className="flex gap-3 mt-3 flex-wrap">
-          <span className="text-xs text-[#8a9bc4] bg-[rgba(255,255,255,0.05)] px-3 py-1 rounded-full">{bairro.cidade}</span>
-          <span className="text-xs text-[#3aabab] bg-[rgba(42,140,140,0.1)] px-3 py-1 rounded-full">{bairro.total_negocios} negócios</span>
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-1.5 text-[#8a9bc4] text-sm mb-6 flex-wrap">
+        <Link href="/" className="hover:text-white transition-colors">Início</Link>
+        <span>/</span>
+        <Link href={bairroUrl(bairro)} className="hover:text-white transition-colors">{bairro.nome}</Link>
+        <span>/</span>
+        <span className="text-white">{categoria.nome}</span>
+      </div>
+
+      <div className="mb-8">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-3xl">{categoria.icone}</span>
+          <h1 className="font-[family-name:var(--font-jakarta)] font-extrabold text-white text-3xl">{categoria.nome}</h1>
         </div>
+        <p className="text-[#8a9bc4]">
+          {negocios.length} negócio{negocios.length !== 1 ? 's' : ''} em <span className="text-white">{bairro.nome}</span>
+        </p>
       </div>
 
-      {/* Categorias */}
-      <div className="flex gap-2 flex-wrap mb-8">
-        {categoriasComNegocios.map(c => (
-          <Link key={c.id} href={`/${bairro.slug}/${c.slug}`}
-            className="flex items-center gap-1.5 bg-[#1e2e50] border border-[rgba(255,255,255,0.07)] text-[#8a9bc4] text-sm px-4 py-2 rounded-xl hover:border-[rgba(42,140,140,0.4)] hover:text-white transition-all">
-            {c.icone} {c.nome}
-            <span className="text-xs text-[#3aabab] ml-1">({negocios.filter(n => n.categoria_id === c.id).length})</span>
+      {negocios.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {negocios.map(n => <NegocioCard key={n.id} negocio={n} />)}
+        </div>
+      ) : (
+        <div className="text-center py-16">
+          <p className="text-[#8a9bc4] text-lg">Nenhum negócio cadastrado aqui ainda.</p>
+          <Link href={bairroUrl(bairro)} className="text-[#3aabab] text-sm mt-2 inline-block hover:text-white transition-colors">
+            ← Voltar para {bairro.nome}
           </Link>
-        ))}
-      </div>
-
-      {/* Destaques */}
-      {destaques.length > 0 && (
-        <div className="mb-10">
-          <h2 className="font-[family-name:var(--font-jakarta)] font-bold text-white text-xl mb-4">⭐ Em destaque</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {destaques.map(n => <NegocioCard key={n.id} negocio={n} />)}
-          </div>
         </div>
       )}
-
-      {/* Todos os negócios por categoria */}
-      {categoriasComNegocios.map(c => {
-        const lista = negocios.filter(n => n.categoria_id === c.id)
-        return (
-          <div key={c.id} className="mb-10">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-[family-name:var(--font-jakarta)] font-bold text-white text-xl">{c.icone} {c.nome}</h2>
-              <Link href={`/${bairro.slug}/${c.slug}`} className="text-[#3aabab] text-sm hover:text-[#2a8c8c] transition-colors">
-                Ver todos →
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {lista.slice(0, 3).map(n => <NegocioCard key={n.id} negocio={n} />)}
-            </div>
-          </div>
-        )
-      })}
     </div>
   )
 }
@@ -127,9 +138,26 @@ async function NegocioPage({ slug }: { slug: string }) {
     <div className="px-[5vw] py-10 max-w-[1000px] mx-auto">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <Link href={negocio.bairro ? `/${negocio.bairro.slug}` : '/'} className="text-[#8a9bc4] text-sm hover:text-white transition-colors flex items-center gap-1 mb-6">
-        ← {negocio.bairro?.nome ?? 'Voltar'}
-      </Link>
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-1.5 text-[#8a9bc4] text-sm mb-6 flex-wrap">
+        <Link href="/" className="hover:text-white transition-colors">Início</Link>
+        {negocio.bairro && (
+          <>
+            <span>/</span>
+            <Link href={bairroUrl(negocio.bairro)} className="hover:text-white transition-colors">{negocio.bairro.nome}</Link>
+          </>
+        )}
+        {negocio.bairro && negocio.categoria && (
+          <>
+            <span>/</span>
+            <Link href={categoriaUrl(negocio.bairro, negocio.categoria.slug)} className="hover:text-white transition-colors">
+              {negocio.categoria.nome}
+            </Link>
+          </>
+        )}
+        <span>/</span>
+        <span className="text-white">{negocio.nome}</span>
+      </div>
 
       {/* Foto principal */}
       {negocio.fotos[0] && (
@@ -227,14 +255,14 @@ async function NegocioPage({ slug }: { slug: string }) {
 
           {/* Guia */}
           {negocio.guia && (
-            <div className="bg-[rgba(42,140,140,0.08)] border border-[rgba(42,140,140,0.2)] rounded-xl px-4 py-3 mt-1">
+            <Link href={`/guias/${negocio.guia.slug}`}
+              className="bg-[rgba(42,140,140,0.08)] border border-[rgba(42,140,140,0.2)] rounded-xl px-4 py-3 mt-1 hover:border-[rgba(42,140,140,0.4)] transition-all block">
               <p className="text-[#3aabab] text-xs font-medium mb-0.5">Indicado pelo guia</p>
               <p className="text-white text-sm">{negocio.guia.nome}</p>
               {negocio.guia.instagram && (
-                <a href={`https://instagram.com/${negocio.guia.instagram}`} target="_blank" rel="noopener noreferrer"
-                   className="text-[#8a9bc4] text-xs hover:text-white transition-colors">@{negocio.guia.instagram}</a>
+                <p className="text-[#8a9bc4] text-xs">@{negocio.guia.instagram}</p>
               )}
-            </div>
+            </Link>
           )}
         </div>
       </div>
